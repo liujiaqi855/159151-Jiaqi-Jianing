@@ -1,9 +1,6 @@
 package edit;
-  
-
 import java.awt.BorderLayout;  
-import java.awt.Color;
-import java.awt.Container;
+import java.awt.Color;  
 import java.awt.Dimension;  
 import java.awt.Font;  
 import java.awt.GraphicsEnvironment;  
@@ -14,31 +11,19 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;  
 import java.awt.event.MouseAdapter;  
 import java.awt.event.MouseEvent;  
-import java.io.BufferedReader;    
+import java.io.BufferedReader;  
+import java.io.BufferedWriter;  
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;  
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.sun.glass.ui.Menu;
-import com.sun.glass.ui.MenuItem;
-
-import edit.ColorEdit.AboutAction;
-import edit.ColorEdit.CopyAction;
-import edit.ColorEdit.CutAction;
-import edit.ColorEdit.ExitAction;
-import edit.ColorEdit.HelpAction;
-import edit.ColorEdit.NewAction;
-import edit.ColorEdit.OpenAction;
-import edit.ColorEdit.PasteAction;
-import edit.ColorEdit.PrintAction;
-import edit.ColorEdit.SaveAction;
-import edit.ColorEdit.SearchAction;
-
 import javax.print.Doc;
 import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
@@ -49,7 +34,6 @@ import javax.print.SimpleDoc;
 import javax.print.attribute.DocAttributeSet;
 import javax.print.attribute.HashDocAttributeSet;
 import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.swing.Action;
 import javax.swing.ButtonGroup;  
 import javax.swing.ImageIcon;  
 import javax.swing.JButton;  
@@ -75,36 +59,36 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;  
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
-import javax.swing.WindowConstants;
- 
+import javax.swing.WindowConstants;   
 @SuppressWarnings("serial")  
-public class Texteditor extends JFrame {  
-	public JTextArea  open(BufferedReader br,JTextArea ta) { 
-             ta.setText("");  
-             String text;  
-             while ((text = br.readLine()) != null) {  
-                 ta.append(text); 
-                 ta.append("\n"); 
-                 return ta;
-         }  
-	}
-	public FileOutputStream save(FileOutputStream out,JTextArea ta) {
-			out.write(ta.getText().getBytes());
-			return out;
-	}
-	public int search(String str_search,JTextArea ta) {
-		 
-        int len = str_search.length();  
-        for (int i = key; i < ta.getText().length() - len + 1; i++) {  
-            String str_record = ta.getText().substring(i, i + len);  
-            if (str_record.equals(str_search)) {  
-                key = i + 1;  
-                ta.requestFocus();  
-                ta.select(i, i + len);  
-                   return key; 
-                   }
+public class Texteditor extends JFrame { 
+	public JTextArea  open(BufferedReader br) throws IOException { 
+      
+      String text;  
+      while ((text = br.readLine()) != null) {  
+          ta.append(text); 
+          ta.append("\n"); 
+          
+  }
+	return ta;  
+}
+public FileOutputStream save(FileOutputStream out,JTextArea ta) throws IOException {
+		out.write(ta.getText().getBytes());
+		return out;
+}
+public int search(String str_search,JTextArea ta) {
+	int len = str_search.length();  
+ for (int i = key; i < ta.getText().length() - len + 1; i++) {  
+     String str_record = ta.getText().substring(i, i + len);  
+     if (str_record.equals(str_search)) {  
+         key = i + 1;  
+         ta.requestFocus();  
+         ta.select(i, i + len);  
+             
             }
-	}
+     }
+return key;
+}
     // 添加属性  
     private JComboBox combox_name, combox_size;// 字体、字号组合框  
     private JButton button_larger,button_smaller,button_color;//字体变大变小和颜色选择器  
@@ -120,7 +104,7 @@ public class Texteditor extends JFrame {
     private int key=0;  
   
     public  Texteditor(String str) {  
-        super(str);
+        super(str);  
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);  
         Dimension dim = getToolkit().getScreenSize(); // 获得屏幕分辨率  
         this.setBounds(dim.width / 4, dim.height / 4, 700, 480);  
@@ -208,7 +192,7 @@ public class Texteditor extends JFrame {
         });  
         ////////////////  
         JRadioButton radiob_color[];  
-        String colorstr[]={"红","绿","蓝"};  
+        String colorstr[]={"red","green","blue"};  
         ButtonGroup bgroup_color = new ButtonGroup();      //按钮组  
         radiob_color = new JRadioButton[colorstr.length];  //颜色单选按钮数组  
         for (int i=0; i<radiob_color.length; i++){  
@@ -232,7 +216,7 @@ public class Texteditor extends JFrame {
             }  
         });  
         ///////////////颜色选择器  
-        button_color=new JButton("其他");  
+        button_color=new JButton("other");  
         toolbar.add(button_color);  
         button_color.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
@@ -249,49 +233,42 @@ public class Texteditor extends JFrame {
             }  
         });  
         ////////////////  
-        this.addmyMenu(null);       //调用自定义方法，添加菜单  
+        this.addmyMenu();       //调用自定义方法，添加菜单  
         this.setVisible(true);  
     }  
-    
-    
-    
   
-    private void addmyMenu(Object newParam) {// 添加主菜单、快捷菜单、对话框  
+    private void addmyMenu() {// 添加主菜单、快捷菜 单、对话框  
         JMenuBar menubar = new JMenuBar(); // 菜单栏  
         this.setJMenuBar(menubar); // 添加菜单栏  
-        String menustr[] = { "文件", "编辑", "工具", "帮助" };  
+        String menustr[] = { "FILE", "EDIT", "TOOLS", "HELP" };  
         JMenu menu[] = new JMenu[menustr.length];  
         for (int i = 0; i < menustr.length; i++) {  
            menu[i] = new JMenu(menustr[i]); // 菜单  
             menubar.add(menu[i]); // 菜单栏中加入菜单  
         }  
         ////////////////////////////////  
-    
-        JMenuItem menuitem_open = new JMenuItem("打开");  
-        menu[0].add(menuitem_open); 
-     
-        menuitem_open.addActionListener(new ActionListener() {
-            public void actionPerformed (ActionEvent e) { 
-            	JFileChooser filechooser = new JFileChooser();  
+        JMenuItem menuitem_open = new JMenuItem("open");  
+        menu[0].add(menuitem_open);  
+        menuitem_open.addActionListener(new ActionListener() {  
+            public void actionPerformed(ActionEvent e) {  
+                JFileChooser filechooser = new JFileChooser();  
                 int result = filechooser.showOpenDialog(Texteditor.this);  
                 if (result == JFileChooser.APPROVE_OPTION) {  
-                	try {  
+                    try {  
                         File file = filechooser.getSelectedFile();  
                         FileReader fr = new FileReader(file);  
                         BufferedReader br = new BufferedReader(fr);  
-                        open(br,ta);
+                        ta.setText("");  
+                        open(br);
                         fr.close();  
                         br.close();  
                     } catch (Exception ex) {  
-                        JOptionPane.showMessageDialog(Texteditor.this,"打开文档出错！");  
+                        JOptionPane.showMessageDialog(Texteditor.this,"Error");  
                     }  
                 }  
-            }
-            
-            
+            }  
         });  
-        
-        JMenuItem menuitem_save = new JMenuItem("保存");  
+        JMenuItem menuitem_save = new JMenuItem("save");  
         menu[0].add(menuitem_save);  
         menuitem_save.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
@@ -302,18 +279,19 @@ public class Texteditor extends JFrame {
     				try				
     				{
     					FileOutputStream out=new FileOutputStream(f);
-    					save(out,ta);
     					
+    					
+    					save(out,ta);
     				}
     				catch(Exception ex)
-    				{					 
+    				{					
     					ex.printStackTrace();
-    				}				
+    				}			
     			}
   
             }  
-        });  
-        JMenuItem menuitem_save1 = new JMenuItem("保存为PDF");  
+        }); 
+        JMenuItem menuitem_save1 = new JMenuItem("save for PDF");  
         menu[0].add(menuitem_save1);  
         menuitem_save1.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
@@ -323,9 +301,10 @@ public class Texteditor extends JFrame {
     				File f=filechooser.getSelectedFile();
     				try				
     				{
+    					
     					FileOutputStream out=new FileOutputStream(f);//第一步，创建一个 iTextSharp.text.Document对象的实例：
     					Document document = new Document();//第二步，为该Document创建一个Writer实例：
-    					PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\Administrator\\Desktop\\newPDF.pdf"));//第三步，打开当前Document
+    					PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("C:\newPDF.pdf"));//第三步，打开当前Document
     			        document.open();//第四步，为当前Document添加内容；
     			        document.add(out);  //第五步，关闭Document
     			        document.close();
@@ -337,10 +316,9 @@ public class Texteditor extends JFrame {
     			}
   
             }  
-        });  
-        
+        });
         menu[0].addSeparator(); // 加分隔线  
-        JMenuItem menuitem_exit = new JMenuItem("退出");  
+        JMenuItem menuitem_exit = new JMenuItem("Exit");  
         menu[0].add(menuitem_exit);  
         menuitem_exit.addActionListener(new ActionListener() {// 退出  
                     public void actionPerformed(ActionEvent e) {  
@@ -376,10 +354,10 @@ public class Texteditor extends JFrame {
             }  
         });  
         ////////////////////////////  
-        JMenu menu_color = new JMenu("颜色");  
+        JMenu menu_color = new JMenu("color");  
         menu[1].add(menu_color);  
         ButtonGroup buttongroup = new ButtonGroup();  
-        String colorstr[] = { "红", "绿", "蓝" };  
+        String colorstr[] = { "red", "green", "blue" };  
         JRadioButtonMenuItem rbmi_color[] = new JRadioButtonMenuItem[colorstr.length];  
         for (int i = 0; i < rbmi_color.length; i++) {  
             rbmi_color[i] = new JRadioButtonMenuItem(colorstr[i]); // 单选菜单项  
@@ -402,7 +380,7 @@ public class Texteditor extends JFrame {
             }  
         });  
         /////////////////////////////////  
-        JMenuItem menuitem_countwordsnum = new JMenuItem("字数统计");  
+        JMenuItem menuitem_countwordsnum = new JMenuItem("counter");  
         menu[2].add(menuitem_countwordsnum);  
         menuitem_countwordsnum.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
@@ -415,21 +393,21 @@ public class Texteditor extends JFrame {
                 JOptionPane.showMessageDialog(Texteditor.this, "文本框中一共有"+count+"个字符！");  
             }  
         });
-        JMenuItem menuitem_countwordsnum1 = new JMenuItem("剪切");  
+        JMenuItem menuitem_countwordsnum1 = new JMenuItem("cut");  
         menu[2].add(menuitem_countwordsnum1);  
         menuitem_countwordsnum1.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
             	ta.cut();
             	}
         });  
-        JMenuItem menuitem_countwordsnum2 = new JMenuItem("复制");  
+        JMenuItem menuitem_countwordsnum2 = new JMenuItem("copy");  
         menu[2].add(menuitem_countwordsnum2);  
         menuitem_countwordsnum2.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
             	ta.copy();
             	}
         });  
-        JMenuItem menuitem_countwordsnum3= new JMenuItem("粘粘");  
+        JMenuItem menuitem_countwordsnum3= new JMenuItem("paste");  
         menu[2].add(menuitem_countwordsnum3);  
         menuitem_countwordsnum3.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
@@ -437,23 +415,23 @@ public class Texteditor extends JFrame {
             	}
         });  
         menu[2].addSeparator(); // 加分隔线  
-        JMenuItem menuitem_search = new JMenuItem("查找");  
+        JMenuItem menuitem_search = new JMenuItem("search");  
         menu[2].add(menuitem_search);  
         menuitem_search.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
                 new MessageJDialog();  
                   
                 button_next.addActionListener(new ActionListener() {  
-                    public void actionPerformed(ActionEvent e) {
-                    	String str_search=tf_search.getText(); 
-                       search(str_search,ta);
+                    public void actionPerformed(ActionEvent e) {  
+                        String str_search=tf_search.getText();  
+                        search(str_search,ta);
                     }  
                 });  
                   
                 key=0;  
             }  
         });  
-        JMenuItem menuitem_replace = new JMenuItem("替换");  
+        JMenuItem menuitem_replace = new JMenuItem("replace");  
         menu[2].add(menuitem_replace);  
         menuitem_replace.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
@@ -471,14 +449,14 @@ public class Texteditor extends JFrame {
             }  
         });  
         /////////////////////////////////  
-        JMenuItem menuitem_about = new JMenuItem("关于");  
+        JMenuItem menuitem_about = new JMenuItem("about");  
         menu[3].add(menuitem_about);  
         menuitem_about.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
-                JOptionPane.showMessageDialog(Texteditor.this,"文本编辑器v1.0   开发者：王嘉宁,刘佳琪");  
+                JOptionPane.showMessageDialog(Texteditor.this,"Editorv1.0   开发者：Wangjianing,Liujiaqi");  
             }  
         }); 
-        JMenuItem menuitem_about1 = new JMenuItem("时间");  
+        JMenuItem menuitem_about1 = new JMenuItem("T&D");  
         menu[3].add(menuitem_about1);  
         menuitem_about1.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e) {  
@@ -495,7 +473,7 @@ public class Texteditor extends JFrame {
   		}		
              
         });  
-        JMenuItem menuitem_about2 = new JMenuItem("打印");  
+        JMenuItem menuitem_about2 = new JMenuItem("pdf");  
         menu[3].add(menuitem_about2);  
         menuitem_about2.addActionListener(new ActionListener() {  
         	public void actionPerformed(ActionEvent e) {
@@ -532,7 +510,7 @@ public class Texteditor extends JFrame {
         }); 
         ////////////////////////////////////////////////// 快捷菜单对象  
         popupmenu = new JPopupMenu();  
-        String menuitemstr[] = { "剪切", "复制", "粘贴" };  
+        String menuitemstr[] = { "cut", "copy", "paste" };  
         JMenuItem popmenuitem[] = new JMenuItem[menuitemstr.length];  
         for (int i = 0; i < popmenuitem.length; i++) {  
             popmenuitem[i] = new JMenuItem(menuitemstr[i]);// 菜单项  
@@ -571,7 +549,7 @@ public class Texteditor extends JFrame {
         private JPanel panel_tip = new JPanel();  
   
         public MessageJDialog() {  
-            super(Texteditor.this, "查找");  
+            super(Texteditor.this, "search");  
             this.setSize(300, 170);  
             this.setLocation(Texteditor.this.getX() + 200,  
                     Texteditor.this.getY() + 200);  
@@ -584,14 +562,13 @@ public class Texteditor extends JFrame {
             tf_search = new JTextField(20);  
             panel_search.add(tf_search);  
             this.add(panel_search);  
-            button_next = new JButton("查找下一个");  
+            button_next = new JButton("next");  
             panel_next.add(button_next);  
             this.add(panel_next);  
             this.setVisible(true);  
         }  
     }        
     public static void main(String args[]) {  
-        new Texteditor("文本编辑器v1.0");  
+        new Texteditor("Textedior v1.0");  
     }  
 }  
-
